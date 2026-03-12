@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('email', 50)->unique();
             $table->string('password', 255)->nullable()->default(null);
-            $table->integer('id_company')->default(0);
+            $table->integer('id_company')->default(0)->index();
             $table->enum('role', ['sys-admin', 'client-admin', 'client-user'])->default('client-user');
             $table->dateTime('last_login')->nullable()->default(null);
             $table->string('code', 64)->nullable()->default(null);
