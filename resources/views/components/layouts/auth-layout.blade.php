@@ -11,7 +11,16 @@
 </head>
 <body class="bg-zinc-200">
     
-    {{ $slot }}
+    {{-- user top bar --}}    
+    
+    {{-- main horizontal menu --}}    
+    
+    {{-- main content --}}    
+    
+    <div class="p-8">
+        {{ $slot }}
+    </div>
+
 
 </body>
 </html>
