@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\Auth\FactorY;
 
 class AuthController extends Controller
 {
     public function login() {
-        
-        // Verifica se existem erros de validação de formulário
-        if(session('errors')) {
-            dd(session('errors')->all(), old());
-        }
         
         return view('auth.login_frm');
     }
@@ -33,7 +31,22 @@ class AuthController extends Controller
             ]
         );
 
-        echo 'Ok';
+        // user authentication
+        $user = User::where('email', trim($request->username))
+            ->where('active', true)
+            ->whereNull('deleted_at')
+            ->where( function ($query) {
+                $query->whereNull('blocked_until')
+                    ->orWhere('blocked_until', '<', now());
+            })->first();
+        
+        // Checar se o usuário e a senha batem com os dados informados.
+        if($user && Hash::check(trim($request->password), $user->password)) {
+            // login realizado com sucesso
+
+        } else {
+            die('Login inválido!');
+        }
 
     }
 

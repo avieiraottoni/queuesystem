@@ -13,13 +13,19 @@
                 @csrf
 
                 <div class="mb-4">
-                    <label for="username" class="label">Usuário</label>
-                    <input type="email" class="input w-full" id="username" name="username" placeholder="Usuário">
+                    <label for="username" class="label">Usuário</label>                                         <!--
+                                                                                                                    Método old() do LARAEL
+                                                                                                                    captura o último dado digitado
+                                                                                                                    no refresh
+                                                                                                                -->
+                    <input type="email" class="input w-full" id="username" name="username" placeholder="Usuário" value= {{ old('username') }}>
+                    {!! showValidationError('username', $errors) !!}
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="label">Senha</label>
                     <input type="password" class="input w-full" id="password" name="password" placeholder="Senha">
+                    {!! showValidationError('password', $errors) !!}
                 </div>
 
                 <div class="text-center mb-4">

@@ -9,7 +9,7 @@ Route::middleware(['guest'])->group(function () {
      
     // authentication (login)
     Route::get('/login', [AuthController::class, 'login'])->name('login');
-    Route::post ('/login-submit', [AuthController::class, 'loginSubmit'])->name('login.submit');
+    Route::post ('/login', [AuthController::class, 'loginSubmit'])->name('login.submit');
 
 
 });
@@ -17,6 +17,10 @@ Route::middleware(['guest'])->group(function () {
 // auth routes
 
 Route::middleware(['auth'])->group( function() {
+
+    Route::get('/', function() {
+        return 'Home page!';
+    })->name('home');
 
     //logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
