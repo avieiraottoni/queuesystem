@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
 
 // gust routes
@@ -18,10 +19,10 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group( function() {
 
-    Route::get('/', function() {
-        return 'Home page!';
-    })->name('home');
-
+    Route::get('/', [MainController::class, 'index'])->name('home');
+    // Change password
+    Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change.password');
+    Route::post('/change-password', [AuthController::class, 'changePasswordSubmit'])->name('change.password.submit');
     //logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });

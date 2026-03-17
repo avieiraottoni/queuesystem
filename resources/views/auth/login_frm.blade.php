@@ -1,4 +1,5 @@
 <x-layouts.guest-layout subtitle="{{ empty($subtitle) ? '': $subtitle}}">
+    
     <div class="flex flex-col justify-center h-screen items-center">
 
         <div class="main-card w-100">
@@ -20,6 +21,7 @@
                                                                                                                 -->
                     <input type="email" class="input w-full" id="username" name="username" placeholder="Usuário" value= {{ old('username') }}>
                     {!! showValidationError('username', $errors) !!}
+                    {!! showServerError() !!}
                 </div>
 
                 <div class="mb-4">
@@ -47,5 +49,6 @@
         </div>
 
     </div>
+
 </x-layouts.guest-layout>
 
