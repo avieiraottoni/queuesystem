@@ -18,9 +18,9 @@ class MainController extends Controller
             'queues'    => $queues
         ];
 
-        dd($data);
+        //$queues = null;
 
-        return view('home', $data);
+        return view('main.home', $data);
     }
 
     private function getQueueList() {
