@@ -40,7 +40,7 @@ if(!function_exists('getFormattedTicketNumber')) {
     }
 }
 
-if(!function_exists('getticketStateText')) {
+if(!function_exists('getTicketStateText')) {
 
     function getTicketStateText($state) {
         $rules = [
@@ -48,6 +48,33 @@ if(!function_exists('getticketStateText')) {
             'called'        => 'Atendido',
             'not_attended'  => 'Não atendido',
             'dismissed'     => 'Dispensado'
+        ];
+
+        return $rules[$state] ?? 'Desconhecido';
+    }
+}
+
+if(!function_exists('getQueueStateIcon')) {
+
+    function getQueueStateIcon($state) {
+        
+        $icons = [
+            'active'    => '<i class="fa-regular fa-circle-check text-green-700" title="Ativa"></i>',
+            'inactive'  => '<i class="fa-regular fa-circle-xmark text-red-700" title="Inativa"></i>',
+            'done'      => '<i class="fa-solid fa-ban text-slate-300" title="Concluída"></i>'
+        ];
+
+        return $icons[$state] ?? '-';
+    }
+}
+
+if(!function_exists('getQueueStateText')) {
+
+    function getQueueStateText($state) {
+        $rules = [
+            'active'    => 'Ativa',
+            'inactive'  => 'Inativa',
+            'done'      => 'Concluida',
         ];
 
         return $rules[$state] ?? 'Desconhecido';

@@ -43,15 +43,7 @@
                             <td>{{ $queue->name }}</td>
                             <td>{{ $queue->service_name }}</td>
                             <td>{{ $queue->service_desk }}</td>
-                            <td>
-                                @if ($queue->status === 'active')
-                                    <i class="fa-regular fa-circle-check text-green-700" title="Ativa"></i>
-                                @elseif($queue->status === 'inactive')
-                                    <i class="fa-regular fa-circle-xmark text-red-700" title="Inativa"></i>
-                                @elseif($queue->status === 'done')
-                                    <i class="fa-solid fa-ban text-slate-300" title="Concluída"></i>
-                                @endif
-                            </td>
+                            <td>{!! getQueueStateIcon($queue->status) !!}</td>
                             <td>{{ $queue->total_tickets }}</td>
                             <td>{{ $queue->total_dismissed }}</td>
                             <td>{{ $queue->total_not_attended }}</td>
