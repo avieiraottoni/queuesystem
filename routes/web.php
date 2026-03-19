@@ -20,6 +20,9 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['auth'])->group( function() {
 
     Route::get('/', [MainController::class, 'index'])->name('home');
+
+    // queue details
+    Route::get('/queue/{id}', [MainController::class, 'queueDetails'])->name('queue.details');
     // Change password
     Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change.password');
     Route::post('/change-password', [AuthController::class, 'changePasswordSubmit'])->name('change.password.submit');

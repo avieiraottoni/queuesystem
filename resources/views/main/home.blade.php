@@ -25,15 +25,16 @@
             <table id="tabela">
                 <thead class="bg-black text-white">
                     <tr>
-                        <th class="text-xs w-3/14">Nome</th>
-                        <th class="text-xs w-3/14">Serviço</th>
+                        <th class="text-xs w-2/14">Nome</th>
+                        <th class="text-xs w-2/14">Serviço</th>
                         <th class="text-xs w-2/14">Balcão</th>
-                        <th class="text-xs w-1/14">Estado</th>
+                        <th class="text-xs text-center w-1/14">Estado</th>
                         <th class="text-xs text-center w-1/14">Tickets</th>
                         <th class="text-xs text-center w-1/14">Ignorados</th>
                         <th class="text-xs text-center w-1/14">Não atendidos</th>
                         <th class="text-xs text-center w-1/14">Atendidos</th>
                         <th class="text-xs text-center w-1/14">Em espera</th>
+                        <th class="text-xs text-center w-2/14"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,12 +43,26 @@
                             <td>{{ $queue->name }}</td>
                             <td>{{ $queue->service_name }}</td>
                             <td>{{ $queue->service_desk }}</td>
-                            <td>{{ $queue->status }}</td>
+                            <td>
+                                @if ($queue->status === 'active')
+                                    <i class="fa-regular fa-circle-check text-green-700" title="Ativa"></i>
+                                @elseif($queue->status === 'inactive')
+                                    <i class="fa-regular fa-circle-xmark text-red-700" title="Inativa"></i>
+                                @elseif($queue->status === 'done')
+                                    <i class="fa-solid fa-ban text-slate-300" title="Concluída"></i>
+                                @endif
+                            </td>
                             <td>{{ $queue->total_tickets }}</td>
                             <td>{{ $queue->total_dismissed }}</td>
                             <td>{{ $queue->total_not_attended }}</td>
                             <td>{{ $queue->total_called }}</td>
                             <td>{{ $queue->total_waiting }}</td>
+                            <td class="text-right">
+                                <a href=" {{ route('queue.details', ['id' => Crypt::encrypt($queue->id)]) }}" class="btn-white" title="Detalhes"><i class="fa-solid fa-bars"></i></a>
+                                <a href="#" class="btn-white" title="Editar"><i class="fa-regular fa-pen-to-square"></i></a>
+                                <a href="#" class="btn-white" title="Duplicar"><i class="fa-regular fa-clone"></i></a>
+                                <a href="#" class="btn-red" title="Eliminar"><i class="fa-regular fa-trash-can"></i></a>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
