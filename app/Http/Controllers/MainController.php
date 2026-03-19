@@ -65,6 +65,28 @@ class MainController extends Controller
         // to the authenticated user's company
         $queue = Queue::where('id', $id)
             ->where('id_company', Auth::user()->id_company)
+            ->withCount([
+                'tickets as total_tickets' => function($query) {
+                    $query->whereNotNull('queue_ticket_status')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_dismissed' => function($query) {
+                    $query->where('queue_ticket_status', 'dismissed')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_not_attended' => function($query) {
+                    $query->where('queue_ticket_status', 'not_attended')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_called' => function($query) {
+                    $query->where('queue_ticket_status', 'called')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_waiting' => function($query) {
+                    $query->where('queue_ticket_status', 'waiting')
+                        ->whereNull('deleted_at');
+                }
+            ])
             ->firstOrFail();
         
         if(!$queue) {
