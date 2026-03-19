@@ -20,7 +20,7 @@
             <p class="bg-zinc-100 border-1 border-slate-300 rounded-md w-1/2 p-2">Balcão: <span
                     class="text-black font-bold">{{ $queue->service_desk }}</span></p>
             <p class="bg-zinc-100 border-1 border-slate-300 rounded-md w-full p-2">Formato: <span
-                    class="text-black font-bold">{{ $queue->queue_prefix . str_repeat('0', $queue->queue_total_digits) }}</span></p>
+                    class="text-black font-bold">{{ getFormattedTicketNumber(0, $queue->queue_prefix, $queue->queue_total_digits) }}</span></p>
         </div>
 
         <div class="flex gap-4 mb-4">
@@ -52,12 +52,13 @@
                 <tbody>
                     @foreach ($tickets as $ticket)
                         <tr class="border-1 border-slate-300">
-                            <td class="border-1 border-slate-300">{{ $queue->queue_prefix . 
-                                str_pad($ticket->queue_ticket_number,
-                                 $queue->queue_total_digits,
-                                  '0', STR_PAD_LEFT) }}</td>
+                            <td class="border-1 border-slate-300">{{ 
+                                getFormattedTicketNumber($ticket->queue_ticket_number,
+                             $queue->queue_prefix, 
+                             $queue->queue_total_digits) 
+                             }}</td>
                             <td class="border-1 border-slate-300">{{ $ticket->queue_ticket_created_at }}</td>
-                            <td class="border-1 border-slate-300">{{ $ticket->queue_ticket_status }}</td>
+                            <td class="border-1 border-slate-300">{{ getTicketStateText($ticket->queue_ticket_status) }}</td>
                             <td class="border-1 border-slate-300">{{ $ticket->queue_ticket_called_at ?? '-'}}</td>
                             <td class="border-1 border-slate-300">{{ $ticket->queue_ticket_called_by ?? '-'}}</td>
                         </tr>

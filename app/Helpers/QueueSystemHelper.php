@@ -21,3 +21,35 @@ if(!function_exists('showServerError')) {
         }
     }
 }
+
+if(!function_exists('getFormattedTicketNumber')) {
+    function getFormattedTicketNumber($ticketNumber, $prefix = null, $totalDigits = 3) {
+        $result = '';
+
+        // prefix
+        if($prefix) {
+            $result = $prefix;
+        }
+
+        //numbers
+        if($totalDigits > 0) {
+            $result .= str_pad($ticketNumber, $totalDigits, '0', STR_PAD_LEFT);
+        }
+
+        return $result;
+    }
+}
+
+if(!function_exists('getticketStateText')) {
+
+    function getTicketStateText($state) {
+        $rules = [
+            'waiting'       => 'Em espera',
+            'called'        => 'Atendido',
+            'not_attended'  => 'Não atendido',
+            'dismissed'     => 'Dispensado'
+        ];
+
+        return $rules[$state] ?? 'Desconhecido';
+    }
+}
