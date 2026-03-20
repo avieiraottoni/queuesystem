@@ -8,12 +8,17 @@
 
     <div class="main-card overflow-auto">
 
-        <p class="title-2">Filas de Espera</p>
+        <div class="flex justify-between items-center">
+            <p class="title-2">Filas de Espera</p>
+            <p class="title-3">Empresa: <strong>{{ $companyName }}</strong> </p>
+        </div>
 
-        <hr class="mt-2 mb-3">
+        
+
+        <hr class="my-4">
 
         <div class="mb-4">
-            <a href="#" class="btn "><i class="far fa-plus me-2"></i>Criar nova fila...</a>
+            <a href="{{ route('queue.create') }}" class="btn "><i class="far fa-plus me-2"></i>Criar nova fila...</a>
         </div>
 
         @if ($queues->count() === 0)
@@ -22,6 +27,26 @@
                 <p class="text-sm ">Clique no botão acima para criar uma nova fila.</p>
             </div>
         @else
+            <div class="flex justify-between gap-4 my-4">
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total filas<br /> <strong class="text-3xl">{{ $companyTotal['total_queues'] }}</strong>
+                </div>
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total tickets<br /> <strong class="text-3xl">{{ $companyTotal['total_tickets'] }}</strong>
+                </div>
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total dispensadas <br /> <strong class="text-3xl">{{ $companyTotal['total_not_attended'] }}</strong>
+                </div>
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total não atendidas <br /> <strong class="text-3xl">{{ $companyTotal['total_not_attended'] }}</strong>
+                </div>
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total chamados <br /> <strong class="text-3xl">{{ $companyTotal['total_called'] }}</strong>
+                </div>
+                <div class="bg-gradient-to-b from-slate-200 to-slate-50 border-1 border-slate-300 rounded-xl w-full p-4 text-center text-xl">
+                    Total em espera <br /> <strong class="text-3xl">{{ $companyTotal['total_waiting'] }}</strong>
+                </div>
+            </div>    
             <table id="tabela">
                 <thead class="bg-black text-white">
                     <tr>

@@ -20,6 +20,9 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['auth'])->group( function() {
 
     Route::get('/', [MainController::class, 'index'])->name('home');
+    // create a new queue
+    Route::get('/queue/create', [MainController::class, 'createQueue'])->name('queue.create');
+    Route::post('/queue/create', [MainController::class, 'createQueueSubmit'])->name('queue.create.submit');
 
     // queue details
     Route::get('/queue/{id}', [MainController::class, 'queueDetails'])->name('queue.details');

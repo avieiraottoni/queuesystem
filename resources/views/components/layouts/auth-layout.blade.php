@@ -10,6 +10,9 @@
     {{-- datatables --}}
     <link rel="stylesheet" href="{{ asset('assets/datatables/datatables.min.css') }}">
     <script src="{{ asset('assets/datatables/datatables.min.js') }}"></script>
+    {{-- coloris --}}
+    <link rel="stylesheet" href="{{ asset('assets/coloris/coloris.min.css') }}">
+    <script src="{{ asset('assets/coloris/coloris.min.js') }}"></script>
     {{-- css --}}
     @vite('resources/css/app.css')
 </head>

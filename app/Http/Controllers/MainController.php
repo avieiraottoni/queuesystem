@@ -25,6 +25,18 @@ class MainController extends Controller
         return view('main.home', $data);
     }
 
+    public function createQueue() {
+        $data = [
+            'subtitle'  => 'Criar fila'
+        ];
+
+        return view('main.queue_create_frm', $data);
+    }
+
+    public function createQueueSubmit(Request $request) {
+        echo "Create queue submit";
+    }
+
     private function getQueueList() {
         $company_id = Auth::user()->id_company;
 
