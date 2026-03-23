@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group( function() {
     // create a new queue
     Route::get('/queue/create', [MainController::class, 'createQueue'])->name('queue.create');
     Route::post('/queue/create', [MainController::class, 'createQueueSubmit'])->name('queue.create.submit');
+    Route::get('queue/generate-hash', [MainController::class, 'generateQueueHash'])->name('queue.generate.hash');
 
     // queue details
     Route::get('/queue/{id}', [MainController::class, 'queueDetails'])->name('queue.details');

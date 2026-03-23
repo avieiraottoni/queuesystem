@@ -76,7 +76,7 @@
                         <p class="label">Código de hash</p>
                         <div class="flex gap-2">
                             <p class="input bg-slate-100 w-full" id="hash_code">&nbsp;</p>
-                            <button type="button" class="btn"><i class="fa-solid fa-rotate"></i></button>
+                            <button type="button" class="btn" id="btn_hash_code"><i class="fa-solid fa-rotate"></i></button>
                         </div>
                     </div>
 
@@ -198,7 +198,23 @@
         color1.addEventListener('change', updateTicketPreview);      
         color2.addEventListener('change', updateTicketPreview);      
         color3.addEventListener('change', updateTicketPreview);    
-        color4.addEventListener('change', updateTicketPreview);     
+        color4.addEventListener('change', updateTicketPreview);
+        
+        function getHashCode() {
+            fetch("{{ route('queue.generate.hash') }}")
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('#hash_code').textContent = data.hash;
+                })
+                .catch(error => {
+                   alert('Aconteceu um erro na criação do códgigo de hash. Por favor tente novamente. '); 
+                });
+        }
+
+        getHashCode();
+
+        // refresh hash code on button click
+        document.querySelector('#btn_hash_code').addEventListener('click', getHashCode);
         
     </script>
 

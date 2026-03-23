@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use function PHPUnit\Framework\returnArgument;
+use Illuminate\Support\Str;
 
 class MainController extends Controller
 {
@@ -135,5 +136,20 @@ class MainController extends Controller
         ];
 
         return view('main.queue_details', $data);
+    }
+
+    public function generateQueueHash() {
+        // generate a unique 64 chars hash code
+        $hash = hash('sha256', Str::random(40));
+
+        // make certais that the hash is unique 
+        while(Queue::where('hash_code', $hash)->exists()) {
+            $hash = hash('sha256', Str::random(40));
+        }
+
+        // return the unique hash code
+        return response()->json([
+            'hash' => $hash
+        ]);
     }
 }
