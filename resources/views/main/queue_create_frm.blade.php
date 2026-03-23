@@ -44,6 +44,12 @@
                             <label for="prefix" class="label">Prefixo</label>
                             <select name="prefix" id="prefix" class="input w-full">
                                 <option value="-">Sem prefixo</option>
+                                @php
+                                    $prefixes = str_split('ABCDEFGHIJKLMNOPQRSTUVYXWZ');
+                                @endphp
+                                @foreach ($prefixes as $prefix)
+                                    <option value="{{ $prefix }}" {{ $prefix === 'A'? 'selected':'' }}>{{ $prefix }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -111,7 +117,7 @@
             </div>
 
             <div class="flex w-1/2 justify-center items-center">
-                <div id="color_preview" class="flex main-card">
+                <div id="color_preview" class="flex main-card !bg-slate-200">
                     <p id="example_prefix" class="rounded-tl-2xl rounded-bl-2xl text-center text-9xl font-bold p-6"
                         style="background-color: #0d3561; color: #ffffff;">A</p>
                     <p id="example_number" class="rounded-tr-2xl rounded-br-2xl text-center text-9xl font-bold p-6"
@@ -125,10 +131,75 @@
 
     <script>
         // add coloris to all color input
-        Coloris({ el: '#color_1',alpha: false,defaultColor: '#0d3561'});
-        Coloris({ el: '#color_2',alpha: false,defaultColor: '#ffffff'});
-        Coloris({ el: '#color_3',alpha: false,defaultColor: '#adb4b9'});
-        Coloris({ el: '#color_4',alpha: false,defaultColor: '#011020'});
+        const fixedColors = [
+            '#ff0000',
+            '#660000',
+            '#0000ff',
+            '#000066',
+            '#00ff00',
+            '#006600',
+            '#ffa800',
+            '#aa6600',
+            '#ffff00',
+            '#666600',
+            '#000000',
+            '#ffffff',
+        ];
+
+
+        Coloris({ el: '#color_1',alpha: false,swatches: fixedColors, defaultColor: '#001124'});
+        Coloris({ el: '#color_2',alpha: false,swatches: fixedColors, defaultColor: '#ffffff'});
+        Coloris({ el: '#color_3',alpha: false,swatches: fixedColors, defaultColor: '#adb4b9'});
+        Coloris({ el: '#color_4',alpha: false,swatches: fixedColors, defaultColor: '#011020'});
+
+        // inputs
+        const prefix        = document.querySelector('#prefix');
+        const total_digits  = document.querySelector('#total_digits');
+        const color1        = document.querySelector('#color_1');
+        const color2        = document.querySelector('#color_2');
+        const color3        = document.querySelector('#color_3');
+        const color4        = document.querySelector('#color_4');
+
+        // ticket preview elements
+        const example_prefix = document.querySelector('#example_prefix');
+        const example_number = document.querySelector('#example_number');
+
+        function updateTicketPreview() {
+            const ticketProperties = {
+                hasPrefix: prefix.value !== '-',
+                prefix: prefix.value,
+                totalDigits: parseInt(total_digits.value),
+                prefixBackgroundColor: color1.value,
+                prefixTextColor: color2.value,
+                numberBackgroundColor: color3.value,
+                numberTextColor: color4.value,
+            };
+
+            // update prefix
+            if (ticketProperties.hasPrefix) {
+                example_prefix.textContent = ticketProperties.prefix;
+                example_prefix.style.backgroundColor = ticketProperties.prefixBackgroundColor;
+                example_prefix.style.color = ticketProperties.prefixTextColor;
+                example_prefix.classList.remove('hidden');
+            } else {
+                example_prefix.classList.add('hidden');
+            }
+
+            // update number
+            example_number.textContent = String(1).padStart(ticketProperties.totalDigits, '0');
+            example_number.style.backgroundColor = ticketProperties.numberBackgroundColor;
+            example_number.style.color = ticketProperties.numberTextColor;
+        }
+
+
+
+        prefix.addEventListener('change', updateTicketPreview);      
+        total_digits.addEventListener('change', updateTicketPreview);
+        color1.addEventListener('change', updateTicketPreview);      
+        color2.addEventListener('change', updateTicketPreview);      
+        color3.addEventListener('change', updateTicketPreview);    
+        color4.addEventListener('change', updateTicketPreview);     
+        
     </script>
 
 </x-layouts.auth-layout>
