@@ -12,29 +12,38 @@
 
             <div class="w-1/2">
 
-                <form action="#" method="POST" novalidate>
+                <form action="{{ route('queue.create.submit') }}" method="POST" novalidate>
+
+                    @csrf
+
+                    <input type="hidden" name="hidden_hash_code" value="">
 
                     <div class="mb-4">
                         <label for="name" class="label">Nome da fila</label>
-                        <input type="text" name="name" id="name" class="input w-full" placeholder="Nome da fila">
+                        <input type="text" name="name" id="name" class="input w-full" placeholder="Nome da fila" value="{{ old('name') }}">
+                        {!! showValidationError('name', $errors) !!}
+                        {!! showServerError() !!}
                     </div>
 
                     <div class="mb-4">
                         <label for="description" class="label">Descrição</label>
                         <input type="text" name="description" id="description" class="input w-full"
-                            placeholder="Descrição da fila">
+                            placeholder="Descrição da fila" value="{{ old('description') }}">
+                        {!! showValidationError('description', $errors) !!}
                     </div>
 
                     <div class="flex gap-4 mb-4">
                         <div class="w-1/2">
                             <label for="service" class="label">Serviço</label>
-                            <input type="text" name="service" id="service" class="input w-full" placeholder="Serviço">
+                            <input type="text" name="service" id="service" class="input w-full" placeholder="Serviço" value="{{ old('service') }}">
+                            {!! showValidationError('service', $errors) !!}
                         </div>
 
                         <div class="w-1/2">
                             <label for="desk" class="label">Balcão de atendimento</label>
                             <input type="text" name="desk" id="desk" class="input w-full"
-                                placeholder="Balcão de atendimento">
+                                placeholder="Balcão de atendimento" value="{{ old('desk') }}">
+                            {!! showValidationError('desk', $errors) !!}
                         </div>
                     </div>
 
@@ -51,6 +60,7 @@
                                     <option value="{{ $prefix }}" {{ $prefix === 'A'? 'selected':'' }}>{{ $prefix }}</option>
                                 @endforeach
                             </select>
+                            {!! showValidationError('prefix', $errors) !!}
                         </div>
 
                         <div class="w-full">
@@ -60,6 +70,7 @@
                                 <option value="3">000</option>
                                 <option value="4">0000</option>
                             </select>
+                            {!! showValidationError('total_digits', $errors) !!}
                         </div>
 
                         <div class="w-full">
@@ -68,6 +79,7 @@
                                 <option value="active" selected>Ativa</option>
                                 <option value="inactive">Inativa</option>
                             </select>
+                            {!! showValidationError('status', $errors) !!}
                         </div>
 
                     </div>
@@ -78,6 +90,7 @@
                             <p class="input bg-slate-100 w-full" id="hash_code">&nbsp;</p>
                             <button type="button" class="btn" id="btn_hash_code"><i class="fa-solid fa-rotate"></i></button>
                         </div>
+                        {!! showValidationError('hidden_hash_code', $errors) !!}
                     </div>
 
                     <div class="main-card flex !p-4 mb-4">
@@ -87,11 +100,13 @@
                                 <label class="label">Prefixo - Cor de fundo</label>
                                 <input type="text" class="input text-zinc-900" name="color_1" id="color_1"
                                     value="#0d3561">
+                                {!! showValidationError('color_1', $errors) !!}
                             </div>
                             <div>
                                 <label class="label">Prefixo - Cor do texto</label>
                                 <input type="text" class="input text-zinc-900" name="color_2" id="color_2"
                                     value="#ffffff">
+                                {!! showValidationError('color_2', $errors) !!}
                             </div>
                         </div>
 
@@ -100,11 +115,13 @@
                                 <label class="label">Número - Cor de fundo</label>
                                 <input type="text" class="input text-zinc-900" name="color_3" id="color_3"
                                     value="#adb4b9">
+                                {!! showValidationError('color_3', $errors) !!}
                             </div>
                             <div>
                                 <label class="label">Número - Cor do texto</label>
                                 <input type="text" class="input text-zinc-900" name="color_4" id="color_4"
                                     value="#011020">
+                                {!! showValidationError('color_4', $errors) !!}
                             </div>
                         </div>
 
@@ -205,6 +222,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.querySelector('#hash_code').textContent = data.hash;
+                    document.querySelector('input[name="hidden_hash_code"]').value = data.hash;
                 })
                 .catch(error => {
                    alert('Aconteceu um erro na criação do códgigo de hash. Por favor tente novamente. '); 
