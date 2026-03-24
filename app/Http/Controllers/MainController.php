@@ -276,4 +276,35 @@ class MainController extends Controller
             'hash' => $hash
         ]);
     }
+
+    public function editQueue($id) {
+        // check if the decrypted queue ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de fila inválido.');
+        }
+
+        // check if the queue exists and belongs to the authenticate user's company
+        $queue = Queue::where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+        
+        if(!$queue) {
+            abort(404, 'Fila não econtrada.');
+        }
+
+        // show the edit queue form
+        $data = [
+            'subtitle'      => 'Editar fila',
+            'queue'         => $queue,
+            'queueColors'   => json_decode($queue->queue_colors, true)
+        ]; 
+
+        return view('main.queue_edit_frm', $data);
+    }
+
+    public function editQueueSubmit(Request $request) {
+        dd($request->all());
+    }
 }

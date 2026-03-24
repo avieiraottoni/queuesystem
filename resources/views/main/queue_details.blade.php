@@ -4,7 +4,7 @@
 
         <div class="flex justify-between items-center">
             <p class="title-2">Fila de espera</p>
-            <a href="{{ route('home') }}" class="btn"><i class="fa-solid fa-arrow-left me-2"></i>Voltar</a>
+            <a href="{{ route(name: 'home') }}" class="btn"><i class="fa-solid fa-arrow-left me-2"></i>Voltar</a>
         </div>
 
         <hr class="mt-2 mb-4">

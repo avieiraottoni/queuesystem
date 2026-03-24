@@ -76,7 +76,7 @@
                             <td>{{ $queue->total_waiting }}</td>
                             <td class="text-right">
                                 <a href=" {{ route('queue.details', ['id' => Crypt::encrypt($queue->id)]) }}" class="btn-white" title="Detalhes"><i class="fa-solid fa-bars"></i></a>
-                                <a href="#" class="btn-white" title="Editar"><i class="fa-regular fa-pen-to-square"></i></a>
+                                <a href=" {{ route('queue.edit', ['id' => Crypt::encrypt($queue->id)]) }}" class="btn-white" title="Editar"><i class="fa-regular fa-pen-to-square"></i></a>
                                 <a href="#" class="btn-white" title="Duplicar"><i class="fa-regular fa-clone"></i></a>
                                 <a href="#" class="btn-red" title="Eliminar"><i class="fa-regular fa-trash-can"></i></a>
                             </td>
