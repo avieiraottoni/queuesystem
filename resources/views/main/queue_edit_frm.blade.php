@@ -56,9 +56,10 @@
                                 <option value="{{ $queue->queue_prefix === '-' ? 'selected' : '' }}">Sem prefixo</option>
                                 @php
                                     $prefixes = str_split('ABCDEFGHIJKLMNOPQRSTUVYXWZ');
+                                    $queuePrefix = old('prefix', $queue->queue_prefix);
                                 @endphp
                                 @foreach ($prefixes as $prefix)
-                                    <option value="{{ $prefix }}" {{ $prefix === $queue->queue_prefix ? 'selected':'' }}>{{ $prefix }}</option>
+                                    <option value="{{ $prefix }}" {{ $queuePrefix === $prefix ? 'selected' : '' }}>{{ $prefix }}</option>
                                 @endforeach
                             </select>
                             {!! showValidationError('prefix', $errors) !!}
@@ -66,10 +67,13 @@
 
                         <div class="w-full">
                             <label for="status" class="label">Estado</label>
+                            @php
+                                $queueStatus = old('status', $queue->status);
+                            @endphp
                             <select name="status" id="status" class="input w-full">
-                                <option value="active" {{ $queue->status === 'active' ? 'selected' : '' }}>Ativa</option>
-                                <option value="inactive" {{ $queue->status === 'active' ? 'selected' : '' }}>Inativa</option>
-                                <option value="done" {{ $queue->status === 'active' ? 'selected' : '' }}>Concluída</option>
+                                <option value="active" {{ $queueStatus === 'active' ? 'selected' : '' }}>Ativa</option>
+                                <option value="inactive" {{ $queueStatus === 'inactive' ? 'selected' : '' }}>Inativa</option>
+                                <option value="done" {{ $queueStatus === 'done' ? 'selected' : '' }}>Concluída</option>
                             </select>
                             {!! showValidationError('status', $errors) !!}
                         </div>

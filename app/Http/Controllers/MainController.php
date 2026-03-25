@@ -27,7 +27,126 @@ class MainController extends Controller
         return view('main.home', $data);
     }
 
-    public function createQueue()
+    private function getQueueList()
+    {
+        $company_id = Auth::user()->id_company;
+
+        return Queue::where('id_company', $company_id)
+            ->withCount([
+                'tickets as total_tickets' => function ($query) {
+                    $query->whereNotNull('queue_ticket_status')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_dismissed' => function ($query) {
+                    $query->where('queue_ticket_status', 'dismissed')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_not_attended' => function ($query) {
+                    $query->where('queue_ticket_status', 'not_attended')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_called' => function ($query) {
+                    $query->where('queue_ticket_status', 'called')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_waiting' => function ($query) {
+                    $query->where('queue_ticket_status', 'waiting')
+                        ->whereNull('deleted_at');
+                },
+            ])->get();
+    }
+
+    private function getCompanyTotals()
+    {
+        $companyId = Auth::user()->id_company;
+        $totalQueues = Queue::where('id_company', $companyId)->count();
+
+        // get all tickets of the company
+        $tickets = QueueTicket::whereHas('queue', function ($query) use ($companyId) {
+            $query->where('id_company', $companyId);
+        })->get();
+
+        return [
+            'total_queues' => $totalQueues,
+            'total_tickets' => $tickets->count(),
+            'total_dismissed' => $tickets->where('queue_ticket_status', 'dismissed')->count(),
+            'total_not_attended' => $tickets->where('queue_ticket_status', 'not_attended')->count(),
+            'total_called' => $tickets->where('queue_ticket_status', 'called')->count(),
+            'total_waiting' => $tickets->where('queue_ticket_status', 'waiting')->count(),
+        ];
+    }
+
+    public function queueDetails($id)
+    {
+
+        // try to decrypt the id
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Throwable $e) {
+            abort(403, 'ID de fila inválido.');
+        }
+
+        // check if the queue exists and belongs 
+        // to the authenticated user's company
+        $queue = Queue::where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->withCount([
+                'tickets as total_tickets' => function ($query) {
+                    $query->whereNotNull('queue_ticket_status')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_dismissed' => function ($query) {
+                    $query->where('queue_ticket_status', 'dismissed')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_not_attended' => function ($query) {
+                    $query->where('queue_ticket_status', 'not_attended')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_called' => function ($query) {
+                    $query->where('queue_ticket_status', 'called')
+                        ->whereNull('deleted_at');
+                },
+                'tickets as total_waiting' => function ($query) {
+                    $query->where('queue_ticket_status', 'waiting')
+                        ->whereNull('deleted_at');
+                }
+            ])
+            ->firstOrFail();
+
+        if (!$queue) {
+            abort(404, 'Fila não econtrada');
+        }
+
+        // get the tickets from the queue
+        $tickets = $queue->tickets()->get();
+
+        $data = [
+            'subtitle' => 'Detalhes',
+            'queue' => $queue,
+            'tickets' => $tickets
+        ];
+
+        return view('main.queue_details', $data);
+    }
+
+    public function generateQueueHash()
+    {
+        // generate a unique 64 chars hash code
+        $hash = hash('sha256', Str::random(40));
+
+        // make certais that the hash is unique 
+        while (Queue::where('hash_code', $hash)->exists()) {
+            $hash = hash('sha256', Str::random(40));
+        }
+
+        // return the unique hash code
+        return response()->json([
+            'hash' => $hash
+        ]);
+    }
+    
+        public function createQueue()
     {
         $data = [
             'subtitle' => 'Criar fila'
@@ -157,126 +276,6 @@ class MainController extends Controller
 
         return redirect()->route('home');
     }
-
-    private function getQueueList()
-    {
-        $company_id = Auth::user()->id_company;
-
-        return Queue::where('id_company', $company_id)
-            ->withCount([
-                'tickets as total_tickets' => function ($query) {
-                    $query->whereNotNull('queue_ticket_status')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_dismissed' => function ($query) {
-                    $query->where('queue_ticket_status', 'dismissed')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_not_attended' => function ($query) {
-                    $query->where('queue_ticket_status', 'not_attended')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_called' => function ($query) {
-                    $query->where('queue_ticket_status', 'called')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_waiting' => function ($query) {
-                    $query->where('queue_ticket_status', 'waiting')
-                        ->whereNull('deleted_at');
-                },
-            ])->get();
-    }
-
-    private function getCompanyTotals()
-    {
-        $companyId = Auth::user()->id_company;
-        $totalQueues = Queue::where('id_company', $companyId)->count();
-
-        // get all tickets of the company
-        $tickets = QueueTicket::whereHas('queue', function ($query) use ($companyId) {
-            $query->where('id_company', $companyId);
-        })->get();
-
-        return [
-            'total_queues' => $totalQueues,
-            'total_tickets' => $tickets->count(),
-            'total_dismissed' => $tickets->where('queue_ticket_status', 'dismissed')->count(),
-            'total_not_attended' => $tickets->where('queue_ticket_status', 'not_attended')->count(),
-            'total_called' => $tickets->where('queue_ticket_status', 'called')->count(),
-            'total_waiting' => $tickets->where('queue_ticket_status', 'waiting')->count(),
-        ];
-    }
-
-    public function queueDetails($id)
-    {
-
-        // try to decrypt the id
-        try {
-            $id = Crypt::decrypt($id);
-        } catch (\Throwable $e) {
-            abort(403, 'ID de fila inválido.');
-        }
-
-        // check if the queue exists and belongs 
-        // to the authenticated user's company
-        $queue = Queue::where('id', $id)
-            ->where('id_company', Auth::user()->id_company)
-            ->withCount([
-                'tickets as total_tickets' => function ($query) {
-                    $query->whereNotNull('queue_ticket_status')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_dismissed' => function ($query) {
-                    $query->where('queue_ticket_status', 'dismissed')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_not_attended' => function ($query) {
-                    $query->where('queue_ticket_status', 'not_attended')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_called' => function ($query) {
-                    $query->where('queue_ticket_status', 'called')
-                        ->whereNull('deleted_at');
-                },
-                'tickets as total_waiting' => function ($query) {
-                    $query->where('queue_ticket_status', 'waiting')
-                        ->whereNull('deleted_at');
-                }
-            ])
-            ->firstOrFail();
-
-        if (!$queue) {
-            abort(404, 'Fila não econtrada');
-        }
-
-        // get the tickets from the queue
-        $tickets = $queue->tickets()->get();
-
-        $data = [
-            'subtitle' => 'Detalhes',
-            'queue' => $queue,
-            'tickets' => $tickets
-        ];
-
-        return view('main.queue_details', $data);
-    }
-
-    public function generateQueueHash()
-    {
-        // generate a unique 64 chars hash code
-        $hash = hash('sha256', Str::random(40));
-
-        // make certais that the hash is unique 
-        while (Queue::where('hash_code', $hash)->exists()) {
-            $hash = hash('sha256', Str::random(40));
-        }
-
-        // return the unique hash code
-        return response()->json([
-            'hash' => $hash
-        ]);
-    }
-
     public function editQueue($id) {
         // check if the decrypted queue ID is valid
         try {
@@ -305,6 +304,113 @@ class MainController extends Controller
     }
 
     public function editQueueSubmit(Request $request) {
-        dd($request->all());
+        // validate the request
+        $request->validate(
+            [
+                'name' => 'required|min:5|max:100',
+                'description' => 'required|min:5|max:255',
+                'service' => 'required|min:3|max:50',
+                'desk' => 'required|min:1|max:20',
+                'prefix' => 'required|in:-,' . implode(',', range('A', 'Z')),
+                'color_1' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+                'color_2' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+                'color_3' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+                'color_4' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+                'status' => 'required|in:active,inactive,done',
+            ],
+            [
+                'name.required' => 'O nome da fila é obrigatório.',
+                'name.min' => 'O nome da fila deve ter no mínimo 5 caracteres.',
+                'name.max' => 'O nome da fila deve ter no máximo 100 caracteres.',
+
+                'description.required' => 'A descrição é obrigatória.',
+                'description.min' => 'A descrição deve ter no mínimo 5 caracteres.',
+                'description.max' => 'A descrição deve ter no máximo 255 caracteres.',
+
+                'service.required' => 'O serviço é obrigatório.',
+                'service.min' => 'O serviço deve ter no mínimo 3 caracteres.',
+                'service.max' => 'O serviço deve ter no máximo 50 caracteres.',
+
+                'desk.required' => 'O balcão de atendimento é obrigatório.',
+                'desk.min' => 'O balcão deve ter pelo menos 1 caractere.',
+                'desk.max' => 'O balcão deve ter no máximo 20 caracteres.',
+
+                'prefix.required' => 'O prefixo é obrigatório.',
+                'prefix.regex' => 'O prefixo deve estar no formato correto (ex: A-).',
+
+                'color_1.required' => 'A cor de fundo do prefixo é obrigatória.',
+                'color_1.regex' => 'A cor deve estar no formato hexadecimal (ex: #ffffff).',
+
+                'color_2.required' => 'A cor do texto do prefixo é obrigatória.',
+                'color_2.regex' => 'A cor deve estar no formato hexadecimal (ex: #ffffff).',
+
+                'color_3.required' => 'A cor de fundo do número é obrigatória.',
+                'color_3.regex' => 'A cor deve estar no formato hexadecimal (ex: #ffffff).',
+
+                'color_4.required' => 'A cor do texto do número é obrigatória.',
+                'color_4.regex' => 'A cor deve estar no formato hexadecimal (ex: #ffffff).',
+
+                'status.required' => 'O estado é obrigatório.',
+                'status.in' => 'O estado deve ser ativa, inativa ou concluída.',
+            ]
+        );
+
+        // check if queue ID is provided
+        if(!$request->has('queue_id')) {
+            abort(403, 'Operação inválida');
+        }
+
+        try {
+             Crypt::decrypt($request->queue_id) === false;
+        } catch (\Exception $e) {
+            abort(403, 'Operação inválida');
+        }
+
+        // check if the queue inentified belongs to the authenticated user's company
+        $queueId = Crypt::decrypt($request->queue_id);
+        $companyId = Auth::user()->id_company;
+
+        $queue = Queue::where('id', $queueId)
+            ->where('id_company', $companyId)
+            ->firstOrFail();
+        
+        if(!$queue) {
+            abort(404, 'Operação inválida');
+        }
+
+        // check if the name is unique for the company
+        $queueExists = Queue::where('id_company', $companyId)
+            ->where('name', $request->name)
+            ->where('id', '!=', $queueId)
+            ->exists();
+        
+        if($queueExists) {
+            
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with([
+                    'server_error' => 'Já existe outra fila com o mesmo nome.
+                        Por favor defina um nome diferente.'
+                ]);
+        }
+
+        // prepare the data to save / update the database
+        $queue->name            = trim($request->name);
+        $queue->description     = trim($request->description);
+        $queue->service_name    = trim($request->service);
+        $queue->service_desk    = trim($request->desk);
+        $queue->queue_prefix    = trim($request->prefix);
+        $queue->queue_colors    = json_encode([
+            'prefix_bg_color'   => trim($request->color_1),
+            'prefix_text_color' => trim($request->color_2),
+            'number_bg_color'   => trim($request->color_3),
+            'number_text_color' => trim($request->color_4),
+        ]);
+        $queue->status          = trim($request->status);
+
+        $queue->save();
+
+        return redirect()->route('home');
     }
 }
