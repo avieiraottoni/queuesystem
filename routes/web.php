@@ -29,11 +29,17 @@ Route::middleware(['auth'])->group( function() {
     Route::get('/queue/edit/{id}', [MainController::class, 'editQueue'])->name('queue.edit');
     Route::post('/queue/edit', [MainController::class, 'editQueueSubmit'])->name('queue.edit.submit');
 
+    // clone queue
+    Route::get('/queue/clone/{id}', [MainController::class, 'cloneQueue'])->name('queue.clone');
+    Route::post('/queue/clone', [MainController::class, 'cloneQueueSubmit'])->name('queue.clone.submit');
+
     // queue details
     Route::get('/queue/{id}', [MainController::class, 'queueDetails'])->name('queue.details');
+    
     // Change password
     Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change.password');
     Route::post('/change-password', [AuthController::class, 'changePasswordSubmit'])->name('change.password.submit');
+    
     //logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });

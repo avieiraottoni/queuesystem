@@ -413,4 +413,73 @@ class MainController extends Controller
 
         return redirect()->route('home');
     }
+
+    public function cloneQueue($id) {
+        // check if the decryptes queu ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'Id de fila inválido.');
+        }
+
+        // check if the queue exists and belongs the autheticated user's company
+        $queue = QUeue::where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+
+        if(!$queue) {
+            abort(403, 'Fila não econtrada');
+        }
+
+        // show the clone queue form
+        $data = [
+            'subtitle'  => 'Clonar fila',
+            'queue'     => $queue
+        ];
+
+        return view('main.queue_clone_frm', $data);
+    }
+
+    public function cloneQueueSubmit(Request $request) {
+        // form validation
+
+        $request->validate(
+                [
+                'name'  => 'required|min:5|max:100'
+            ],
+            [
+                'name.required'    => 'O nome da fila é obrigatório.',
+                'name.min'         => 'O nome da fila deve ter no mínimo 5 caracteres.',
+                'name.max'         => 'O nome da fila deve ter no máximo 100 caracteres.',
+            ]
+        );
+
+        // check if the queue original id is presente
+        if(!$request->has('original_queue_id')) {
+            abort(403, 'Operação inválida.');
+        }
+
+        try {
+            $queueId = Crypt::decrypt($request->has('original_queue_id'));
+        } catch (\Exception $e) {
+            abort(403, 'Operação inválida.');
+        }
+
+        // check if the original queue belongs to the authenticated user's company
+        $queue = Queue::where('id', $queueId)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+        
+        if(!$queue) {
+            abort(403, 'Operação inválida.');
+        }
+
+        // check if the name is unique for the company
+        $queueExists = Queue::where('name', $request->name)
+            ->where('id_company', Auth::user()->id_company)
+            ->exists();
+
+
+        echo 'Ok';
+    }
 }
