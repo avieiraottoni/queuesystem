@@ -31,27 +31,23 @@ class MainController extends Controller
     {
         $company_id = Auth::user()->id_company;
 
-        return Queue::where('id_company', $company_id)
+        return Queue::withTrashed()
+            ->where('id_company', $company_id)
             ->withCount([
                 'tickets as total_tickets' => function ($query) {
-                    $query->whereNotNull('queue_ticket_status')
-                        ->whereNull('deleted_at');
+                    $query->whereNotNull('queue_ticket_status');
                 },
                 'tickets as total_dismissed' => function ($query) {
-                    $query->where('queue_ticket_status', 'dismissed')
-                        ->whereNull('deleted_at');
+                    $query->where('queue_ticket_status', 'dismissed');
                 },
                 'tickets as total_not_attended' => function ($query) {
-                    $query->where('queue_ticket_status', 'not_attended')
-                        ->whereNull('deleted_at');
+                    $query->where('queue_ticket_status', 'not_attended');
                 },
                 'tickets as total_called' => function ($query) {
-                    $query->where('queue_ticket_status', 'called')
-                        ->whereNull('deleted_at');
+                    $query->where('queue_ticket_status', 'called');
                 },
                 'tickets as total_waiting' => function ($query) {
-                    $query->where('queue_ticket_status', 'waiting')
-                        ->whereNull('deleted_at');
+                    $query->where('queue_ticket_status', 'waiting');
                 },
             ])->get();
     }
@@ -423,7 +419,7 @@ class MainController extends Controller
         }
 
         // check if the queue exists and belongs the autheticated user's company
-        $queue = QUeue::where('id', $id)
+        $queue = Queue::where('id', $id)
             ->where('id_company', Auth::user()->id_company)
             ->firstOrFail();
 
@@ -514,4 +510,79 @@ class MainController extends Controller
         return redirect()
             ->route('home');
     }
+
+    public function deleteQueue($id) {
+        
+        // check if the decrypted queue ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de fila inválido.');
+        }
+
+        // check if the queue exists and belongs the autheticated user's company
+        $queue = Queue::where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+
+        if(!$queue) {
+            abort(403, 'Fila não econtrada');
+        }
+
+        // show the delete confirmation page
+        $data = [
+            'subtitle'  => 'Eliminar fila',
+            'queue'     => $queue
+        ];
+
+        return view('main.queue_delete', $data);
+    }
+
+    public function deleteQueueConfirm($id) {
+        // check if the decrypted queue ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de fila inválido.');
+        }
+
+        // check if the queue exists and belongs the autheticated user's company
+        $queue = Queue::where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+
+        if(!$queue) {
+            abort(403, 'Fila não econtrada');
+        }
+
+        // delete queue
+        $queue->delete();
+
+        return redirect()->route('home');
+    }
+
+    public function restoreQueue($id) {
+        
+        // check if the decrypted queue ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de fila inválido.');
+        }
+
+        // check if the queue exists and belongs the autheticated user's company
+        $queue = Queue::withTrashed()
+            ->where('id', $id)
+            ->where('id_company', Auth::user()->id_company)
+            ->firstOrFail();
+
+        if(!$queue) {
+            abort(403, 'Fila não econtrada');
+        }
+
+        // restore the soft deleted queue
+        $queue->restore();
+
+        return redirect()->route('home');
+    } 
 }
