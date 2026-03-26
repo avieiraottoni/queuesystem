@@ -460,7 +460,7 @@ class MainController extends Controller
         }
 
         try {
-            $queueId = Crypt::decrypt($request->has('original_queue_id'));
+            $queueId = Crypt::decrypt($request->original_queue_id);
         } catch (\Exception $e) {
             abort(403, 'Operação inválida.');
         }
@@ -475,11 +475,43 @@ class MainController extends Controller
         }
 
         // check if the name is unique for the company
-        $queueExists = Queue::where('name', $request->name)
+        $queueExists = Queue::where('name', trim($request->name))
             ->where('id_company', Auth::user()->id_company)
             ->exists();
 
+        if($queueExists) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with([
+                    'server_error' => 'Já existe outra fila com o mesmo nome.
+                        Por favor, defina um nome diferente.'
+                ]);
+        }
+        
+        // prepare the data to be saved
+        $newQueue = new Queue();
+        
+        $newQueue->id_company           = Auth::user()->id_company;
+        $newQueue->name                 = trim($request->name);
+        $newQueue->description          = $queue->description;
+        $newQueue->service_name         = $queue->service_name;
+        $newQueue->service_desk         = $queue->service_desk;
+        $newQueue->queue_prefix         = $queue->queue_prefix;
+        $newQueue->queue_total_digits   = $queue->queue_total_digits;
+        $newQueue->queue_colors         = $queue->queue_colors;
+        $newQueue->status               = $queue->status;
 
-        echo 'Ok';
+        // set a new hash code (unique)
+        $hash_code = hash('sha256', Str::random(40));
+        while(Queue::where('hash_code', $hash_code)->exists()) {
+            $hash_code = hash('sha256', Str::random(40));
+        }
+
+        $newQueue->hash_code            = $hash_code;
+        $newQueue->save();
+
+        return redirect()
+            ->route('home');
     }
 }
