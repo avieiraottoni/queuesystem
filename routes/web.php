@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BundlesController;
 use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,10 @@ Route::middleware(['guest'])->group(function () {
 // auth routes
 
 Route::middleware(['auth'])->group( function() {
+
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // :::::::::::::::::::::::::::::::::::                       QUEUES                       :::::::::::::::::::::::::::::::::::      
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     Route::get('/', [MainController::class, 'index'])->name('home');
     // create a new queue
@@ -41,7 +46,23 @@ Route::middleware(['auth'])->group( function() {
 
     // queue details
     Route::get('/queue/{id}', [MainController::class, 'queueDetails'])->name('queue.details');
+
     
+    
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // :::::::::::::::::::::::::::::::::::                       BUNDLES                       ::::::::::::::::::::::::::::::::::      
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    Route::get('/bundles', [BundlesController::class, 'index'])->name('bundles.home');
+    Route::get('/bundles/create', [BundlesController::class, 'create'])->name('bundles.create');
+    Route::post('/bundles/create', [BundlesController::class, 'createSubmit'])->name('bundles.create.submit');
+
+
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // ::::::::::::::::::::::::::::::::::                       LOGIN                          ::::::::::::::::::::::::::::::::::      
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
     // Change password
     Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change.password');
     Route::post('/change-password', [AuthController::class, 'changePasswordSubmit'])->name('change.password.submit');
