@@ -8,7 +8,7 @@
         <hr class="my-4">
 
         <div class="mb-4">
-            <a href="#" class="btn"><i class="far fa-plus me-2"></i>Criar novo bundle</a>
+            <a href="{{ route('bundles.create') }}" class="btn"><i class="far fa-plus me-2"></i>Criar novo bundle</a>
         </div>
 
         @if ($bundles->isEmpty())
@@ -19,18 +19,18 @@
             <table id="table-bundles">
                 <thead class="bg-black text-white">
                     <tr>
-                        <th>Nome</th>
-                        <th>Número de filas</th>
-                        <th>Credenciais</th>
-                        <th></th>
+                        <th class="w-[35%]">Nome</th>
+                        <th class="w-[20%]">Número de filas</th>
+                        <th class="w-[25%]">Credenciais</th>
+                        <th class="w-[20%]"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($bundles as $bundle)
                         <tr>
-                            <td>[nome]</td>
-                            <td>[número de filas]</td>
-                            <td>[credenciais]</td>
+                            <td>{{ $bundle->name }}</td>
+                            <td>{{ count(json_decode($bundle->queues)) }}</td>
+                            <td>{{ $bundle->credential_username }}</td>
                             <td>[ações]</td>
                         </tr>
                     @endforeach

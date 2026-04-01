@@ -54,8 +54,8 @@ Route::middleware(['auth'])->group( function() {
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     Route::get('/bundles', [BundlesController::class, 'index'])->name('bundles.home');
-    Route::get('/bundles/create', [BundlesController::class, 'create'])->name('bundles.create');
-    Route::post('/bundles/create', [BundlesController::class, 'createSubmit'])->name('bundles.create.submit');
+    Route::get('/bundles/create', [BundlesController::class, 'createBundle'])->name('bundles.create');
+    Route::post('/bundles/create', [BundlesController::class, 'createBundleSubmit'])->name('bundles.create.submit');
 
 
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

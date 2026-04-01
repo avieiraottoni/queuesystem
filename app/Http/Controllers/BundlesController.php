@@ -10,9 +10,19 @@ class BundlesController extends Controller
 
         $data = [
             'subtitle'  => 'Bundles',
-            'bundles'   => collect(['teste' => 'teste']) // empty collection
+            'bundles'   => auth()->user()->company->bundles()->get()
         ];
 
         return view('bundles.home', $data);
+    }
+
+    public function createBundle() {
+        
+        $data = [
+            'subtitle'  => 'Criar bundle',
+            'queues'     => auth()->user()->company->queues()->get()
+        ];
+
+        return view('bundles.create_bundle_frm', $data);
     }
 }

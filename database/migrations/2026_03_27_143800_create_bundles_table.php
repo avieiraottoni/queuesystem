@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('queues')->nullable()->default(null);
             // credentials
             $table->string('credential_username', 50)->nullable()->default();
-            $table->string('credential_password', 50)->nullable()->default();
+            $table->string('credential_password', 200)->nullable()->default();
             $table->dateTime('created_at')->useCurrent();
             $table->dateTime('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->dateTime('deleted_at')->nullable()->default(null);

@@ -19,4 +19,10 @@ class Company extends Model
     public function queues(){
         return $this->hasMany(Queue::class, 'id_company');
     }
+
+    //  relação entre empresa e bundles. Uma empresa pode ter vários bundles 
+
+    public function bundles() {
+        return $this->hasMany(Bundle::class, 'id_company');
+    }
 }
