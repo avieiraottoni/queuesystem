@@ -13,7 +13,11 @@
 
             <div class="w-full">
 
-                <form action="#" method="post">
+                <form action="{{ route('bundles.create.submit') }}" method="post">
+
+                    @csrf
+
+                    <input type="hidden" name="queues_list" value="{{ old('bundle_name') }}">
 
                     <div class="mb-4">
                         <label for="bundle_name" class="label">Nome do bundle</label>
@@ -45,11 +49,7 @@
 
                     <div class="mb-4">
                         <p class="title-3 mb-2">Filas de espera do bundle</p>
-                        <div class="main-card p-4">
-
-                            <p class="text-center text-slate-400">Não existem filas de espera no bundle</p>
-
-                        </div>
+                        <div class="main-card !bg-slate-100 !p-4" id="div_queues"></div>
                     </div>
 
                     <button type="submit" class="btn"><i class="fa-solid fa-check me-2"></i>Criar bundle</button>
@@ -78,14 +78,14 @@
                         <tbody>
                             @foreach ($queues as $queue)
                                 <tr>
-                                    <td><button class="btn"><i class="fa-solid fa-circle-plus"></i></button></td>
+                                    <td><button class="btn" id="btn-queue" data-queue-hash-code="{{ $queue->hash_code }}" data-queue-name="{{ $queue->name }}"><i class="fa-solid fa-circle-plus"></i></button></td>
                                     <td>{{ $queue->name }}</td>
                                     <td>{{ $queue->service_name }}</td>
                                     <td>{{ $queue->service_desk }}</td>
                                     <td>
                                         <span class="me-2">{!! getQueueStateIcon($queue->status) !!}</span>{{ getQueueStateText($queue->status) }}
                                     </td>
-                                    <td>[PRE-VISUALIZAÇÃO]</td>
+                                    <td>{!! getQueuePreveiw($queue) !!}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -106,6 +106,69 @@
                 }
             });
         });
+
+        // 
+
+        let queues = getQueueListFromInputHidden();
+
+        renderQueues(queues);
+
+        document.querySelectorAll('#btn-queue').forEach(button => {
+            button.addEventListener('click', function() {
+
+                const queueHashCode = this.getAttribute('data-queue-hash-code');
+                const queueName = this.getAttribute('data-queue-name');
+
+                // check if the queue already exists in the bundle
+                if(queues.some(queue => queue.hash_code === queueHashCode)) {
+                    queues = queues.filter(queue => queue.hash_code !== queueHashCode);
+                } else {
+                    queues.push({
+                        'hash_code': queueHashCode,
+                        'name': queueName
+                    });
+                }
+
+                renderQueues(queues);
+            });
+        });
+
+        function renderQueues(queues) {
+            let html = '';
+            if(queues.length === 0) {
+                html = '<p class="text-center text-slate-400">Não existem filas de espera no bundle</p>';
+            } else {
+                queues.forEach(queue => {
+                    html += '<div class="flex bg-white justify-between items-center p-2 mb-1 rounded-lg border-gray-300">';
+                    html += `<span class="font-bold">${queue.name}</span><i class="text-red-500 cursor-pointer fa-regular fa-trash-can" onclick="deleteFromQueue('${queue.hash_code}')"></i>`;
+                    html += '</div>';
+                });
+            }
+
+            document.querySelector('#div_queues').innerHTML = html;
+
+            // update the hidden input with the JSON string of queues
+            document.querySelector('input[name="queues_list"]').value = JSON.stringify(queues);
+
+        }
+
+        function deleteFromQueue(hash_code) {
+            queues = queues.filter(q => q.hash_code !== hash_code);
+            renderQueues(queues);
+        }
+
+        function getQueueListFromInputHidden() {
+            const queueListInput = document.querySelector('input[name="queues_list"]');
+            if(queueListInput) {
+                try {
+                    return JSON.parse(queueListInput.value);
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            return [];
+        }
     </script>
 
 </x-layouts.auth-layout>

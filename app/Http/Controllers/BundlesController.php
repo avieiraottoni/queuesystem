@@ -25,4 +25,14 @@ class BundlesController extends Controller
 
         return view('bundles.create_bundle_frm', $data);
     }
+
+    public function createBundleSubmit(Request $request) {
+        
+        // form validation
+        $request->validate([
+            'bundle_name'   => 'required'
+        ]);
+    
+        dd($request->all());
+    }
 }
