@@ -17,12 +17,13 @@
 
                     @csrf
 
-                    <input type="hidden" name="queues_list" value="{{ old('bundle_name') }}">
+                    <input type="hidden" name="queues_list" value="{{ old('queues_list') }}">
 
                     <div class="mb-4">
                         <label for="bundle_name" class="label">Nome do bundle</label>
                         <input type="text" id="bundle_name" name="bundle_name" class="input w-full"
-                            placeholder="Nome do bundle">
+                            placeholder="Nome do bundle" value="{{ old('bundle_name') }}">
+                        {!! showValidationError('bundle_name', $errors) !!}
                     </div>
 
                     <div class="flex justify-between gap-4">
@@ -30,20 +31,22 @@
                             <label for="credential_username" class="label">Credencial username</label>
                             <div class="flex gap-2">
                                 <input type="text" id="credential_username" name="credential_username"
-                                    class="input w-full" placeholder="Credencial user">
+                                    class="input w-full" placeholder="Credencial user" value="{{ old('credential_username') }}">
                                 <button type="button" id="btn_generate_credencial_username" class="btn"><i
                                         class="fa-solid fa-arrows-rotate"></i></button>
                             </div>
+                            {!! showValidationError('credential_username', $errors) !!}
                         </div>
 
                         <div class="mb-4 w-full">
                             <label for="credential_password" class="label">Credencial senha</label>
                             <div class="flex gap-2">
                                 <input type="text" id="credential_password" name="credential_password"
-                                    class="input w-full" placeholder="Credencial user">
+                                    class="input w-full" placeholder="Credencial password" value="{{ old('credential_password') }}">
                                 <button type="button" id="btn_generate_credencial_password" class="btn"><i
                                         class="fa-solid fa-arrows-rotate"></i></button>
                             </div>
+                            {!! showValidationError('credential_password', $errors) !!}
                         </div>
                     </div>
 
@@ -169,6 +172,26 @@
 
             return [];
         }
+
+        // credential generate
+        document.querySelector("#btn_generate_credencial_username").addEventListener('click', function() {
+            fetch("{{ route('bundles.generate.credential.value', ['num_chars' => 64]) }}")
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector("#credential_username").value = data.hash;
+                })
+            .catch(error => console.error('Error: ', error));
+        });
+
+        document.querySelector("#btn_generate_credencial_password").addEventListener('click', function() {
+            fetch("{{ route('bundles.generate.credential.value', ['num_chars' => 64]) }}")
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector("#credential_password").value = data.hash;
+                })
+            .catch(error => console.error('Error: ', error));
+        });
+
     </script>
 
 </x-layouts.auth-layout>
