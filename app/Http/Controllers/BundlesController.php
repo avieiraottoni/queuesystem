@@ -36,7 +36,6 @@ class BundlesController extends Controller
                 'bundle_name'           => 'required|string|min:5|max:100',
                 'credential_username'   => 'required|string|size:64',
                 'credential_password'   => 'required|string|size:64',
-                'queue_list'            => 'required'
             ],
             [
                 'bundle_name.required'          => 'O nome do bundle é obrigatório.',   
@@ -53,7 +52,7 @@ class BundlesController extends Controller
         );
 
         // check if the queue list is a valid json and the json is not empty
-        if(empty($request->queue_list) || json_decode($request->queue_list) === null || empty(json_decode($request->queue_list))) {
+        if(empty($request->queues_list) || json_decode($request->queues_list) === null || empty(json_decode($request->queues_list))) {
             return redirect()
                 ->back()
                 ->withInput()
@@ -72,7 +71,34 @@ class BundlesController extends Controller
                 ->withErrors(['bundle_name' => 'Já existe outro bundle com esse nome.']);
         }
 
-        dd($request->all());
+        // check if the queues in the queues_list exists and belongs to the user's company
+        $queues_list = json_decode($request->queues_list, true); 
+        $queue_hash_code = array_map(function($queue) {
+            return $queue['hash_code'];
+        }, $queues_list);
+
+        $valid_queues = auth()->user()->company->queues()
+            ->whereIn('hash_code', $queue_hash_code)
+            ->pluck('hash_code')
+            ->toArray();
+        
+        if(count($valid_queues) !== count($queue_hash_code)) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['queues_list' => 'Algumas filas selecionadas não existem ou não pertencem à sua empresa.']);
+        }
+        
+        // create a new bundle
+        $newBundle = new Bundle();
+        $newBundle->id_company = auth()->user()->company->id;
+        $newBundle->name = $bundle_name;
+        $newBundle->queues = json_encode($valid_queues);
+        $newBundle->credential_username = $request->credential_username;
+        $newBundle->credential_password = bcrypt($request->credential_password);
+        $newBundle->save();
+
+        return redirect()->route('bundles.home');
     }
 
     public function generateCredentialValue($num_chars) {

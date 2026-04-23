@@ -52,7 +52,8 @@
 
                     <div class="mb-4">
                         <p class="title-3 mb-2">Filas de espera do bundle</p>
-                        <div class="main-card !bg-slate-100 !p-4" id="div_queues"></div>
+                        <div class="main-card !bg-slate-100 !p-4" id="div_queues"></div> 
+                        {!! showValidationError('queues_list', $errors) !!}
                     </div>
 
                     <button type="submit" class="btn"><i class="fa-solid fa-check me-2"></i>Criar bundle</button>
