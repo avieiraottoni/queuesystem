@@ -58,6 +58,9 @@ Route::middleware(['auth'])->group( function() {
     Route::post('/bundles/create', [BundlesController::class, 'createBundleSubmit'])->name('bundles.create.submit');
     Route::get('/bundles/generate-credential-value/{num_chars}', [BundlesController::class, 'generateCredentialValue'])->name('bundles.generate.credential.value');
 
+    Route::get('bundle/edit/{id}', [BundlesController::class, 'edit'])->name('bundles.edit');
+    Route::post('bundle/edit', [BundlesController::class, 'editSubmit'])->name('bundles.edit.submit');
+
 
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     // ::::::::::::::::::::::::::::::::::                       LOGIN                          ::::::::::::::::::::::::::::::::::      

@@ -31,7 +31,11 @@
                             <td>{{ $bundle->name }}</td>
                             <td>{{ count(json_decode($bundle->queues)) }}</td>
                             <td>{{ $bundle->credential_username }}</td>
-                            <td>[ações]</td>
+                            <td>
+                                <div class="flex justify-end">
+                                    <a href="{{ route('bundles.edit', ['id' => Crypt::encrypt($bundle->id)]) }}" class="btn me-2"><i class="far fa-edit"></i></a>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

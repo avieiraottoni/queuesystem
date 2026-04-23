@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bundle;
+use App\Models\Queue;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 class BundlesController extends Controller
@@ -116,5 +118,50 @@ class BundlesController extends Controller
         }
 
         return response()->json(['hash' => $credentialValue]);
+    }
+
+    public function edit($id) {
+        
+        // check if the decrypted bundle ID is valid
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de bundle inválido.');
+        }
+
+        // find the bundle by id
+        $bundle = Bundle::find($id);
+        if(!$bundle || $bundle->id_company !== auth()->user()->company->id) {
+            return redirect()->route('bundles.home'); 
+        }
+        
+        $data = [
+            'subtitle'              => 'Editar bundle',
+            'bundle'                => $bundle,
+            'bundle_queues_list'    => $this->getBundleQueueList($id),
+            'queues'                 => auth()->user()->company->queues()->get(),
+        ];
+
+        dd($data);
+    }
+
+    public function editSubmit(Request $request) {
+        echo 'Atualizar bundle';
+    }
+
+    private function getBundleQueueList($id) {
+        $queues = json_decode(Bundle::find($id)->queues);
+        $companyQueues = Queue::where('id_company', auth()->user()->company->id)
+            ->whereIn('hash_code', $queues)
+            ->get()->toArray();
+        $queueList = [];
+        foreach ($companyQueues as $queue) {
+            $queueList[] = [
+                'name'      => $queue['name'],
+                'hash_code' => $queue['hash_code']
+            ];
+        }
+
+        return $queueList;
     }
 }
