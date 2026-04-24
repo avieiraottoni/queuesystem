@@ -27,7 +27,7 @@ class BundlesController extends Controller
             'queues'     => auth()->user()->company->queues()->get()
         ];
 
-        return view('bundles.create_bundle_frm', $data);
+        return view('bundles.bundle_create_frm', $data);
     }
 
     public function createBundleSubmit(Request $request) {
@@ -138,11 +138,11 @@ class BundlesController extends Controller
         $data = [
             'subtitle'              => 'Editar bundle',
             'bundle'                => $bundle,
-            'bundle_queues_list'    => $this->getBundleQueueList($id),
-            'queues'                 => auth()->user()->company->queues()->get(),
+            'bundle_queue_list'     => $this->getBundleQueueList($id),
+            'queues'                => auth()->user()->company->queues()->get(),
         ];
 
-        dd($data);
+        return view('bundles.bundle_edit_frm', $data);
     }
 
     public function editSubmit(Request $request) {
@@ -150,15 +150,17 @@ class BundlesController extends Controller
     }
 
     private function getBundleQueueList($id) {
+        
         $queues = json_decode(Bundle::find($id)->queues);
         $companyQueues = Queue::where('id_company', auth()->user()->company->id)
             ->whereIn('hash_code', $queues)
-            ->get()->toArray();
+            ->get();
+
         $queueList = [];
         foreach ($companyQueues as $queue) {
             $queueList[] = [
-                'name'      => $queue['name'],
-                'hash_code' => $queue['hash_code']
+                'name'      => $queue->name,
+                'hash_code' => $queue->hash_code
             ];
         }
 

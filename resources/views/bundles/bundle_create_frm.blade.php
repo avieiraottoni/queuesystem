@@ -4,7 +4,7 @@
 
         <div class="flex justify-between items-center">
             <p class="title-2">Criar novo bundle</p>
-            <a href="#" class="btn"><i class="fa-solid fa-arrow-left me-2"></i>Voltar</a>
+            <a href="{{ route('bundles.home') }}" class="btn"><i class="fa-solid fa-arrow-left me-2"></i>Voltar</a>
         </div>
 
         <hr class="my-4">
