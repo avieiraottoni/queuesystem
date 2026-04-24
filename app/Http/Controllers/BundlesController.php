@@ -146,7 +146,85 @@ class BundlesController extends Controller
     }
 
     public function editSubmit(Request $request) {
-        echo 'Atualizar bundle';
+        
+        // form validation
+        $request->validate(
+            [
+                'bundle_name'                   => 'required|string|min:5|max:100',
+                'queues_list'                   => 'required'
+            ],
+            [
+                'bundle_name.required'          => 'O nome do bundle é obrigatório.',   
+                'bundle_name.string'            => 'O nome do bundle deve ser uma string.',   
+                'bundle_name.min'               => 'O nome do bundle deve ter pelo menos 5 caracteres.',   
+                'bundle_name.max'               => 'O nome do bundle deve ter no máximo 100 caracteres.',
+                'queues_list.required'          => 'A lista de filas é obrigatória.'
+            ]
+        );
+
+        // check if bundle_id is valid
+        if(empty($request->bundle_id)) {
+            return redirect()->route('bundles.home');
+        }
+
+        // tries to decrypt the bundle_id
+        try {
+            $bundle_id = Crypt::decrypt($request->bundle_id);
+        } catch (\Exception $e) {
+            abort(403, 'ID de bundle inválido.');
+        }
+
+        // check if the queue list is a valid json and the json is not empty
+        if(empty($request->queues_list) || json_decode($request->queues_list) === null || empty(json_decode($request->queues_list))) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['queues_list' => 'A lista de filas é obrigatória.']);
+        }
+
+        // check if the name of the bundle already exists 
+        $bundle_name = $request->bundle_name;
+        $bundleExists = auth()->user()->company->bundles()
+            ->where('name', $bundle_name)
+            ->where('id', '!=', $bundle_id)
+            ->exists();
+        
+        if($bundleExists) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['bundle_name' => 'Já existe outro bundle com esse nome.']);
+        }
+
+        // check if the queues in the queues_list exists and belongs to the user's company
+        $queues_list = json_decode($request->queues_list, true); 
+        $queue_hash_code = array_map(function($queue) {
+            return $queue['hash_code'];
+        }, $queues_list);
+
+        $valid_queues = auth()->user()->company->queues()
+            ->whereIn('hash_code', $queue_hash_code)
+            ->pluck('hash_code')
+            ->toArray();
+        
+        if(count($valid_queues) !== count($queue_hash_code)) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['queues_list' => 'Algumas filas selecionadas não existem ou não pertencem à sua empresa.']);
+        }
+
+        // update the bundle
+        $bundle = Bundle::find($bundle_id);
+        if(!$bundle || $bundle->id_company != auth()->user()->company->id) {
+            return redirect()->route('bundles.home');
+        }
+
+        $bundle->name = $bundle_name;
+        $bundle->queues = json_encode($valid_queues);
+        $bundle->save();
+        
+        return redirect()->route('bundles.home');
     }
 
     private function getBundleQueueList($id) {
